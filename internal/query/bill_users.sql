@@ -20,3 +20,17 @@ WHERE (lend_user_id = $1
     AND borrow_user_id = $2)
     OR (lend_user_id = $2
     AND borrow_user_id = $1);
+
+-- name: GetBorrowingsByUserId :many
+SELECT lend_user_id, sum(amount) as amount
+FROM user_bills
+WHERE borrow_user_id = $1
+AND is_active = True
+GROUP BY lend_user_id;
+
+-- name: GetLendingsByUserId :many
+SELECT borrow_user_id, sum(amount) as amount
+FROM user_bills
+WHERE lend_user_id = $1
+AND is_active = True
+GROUP BY borrow_user_id;

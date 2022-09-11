@@ -169,12 +169,11 @@ func generateBillForUserBills(bill createBillRequest, newBill store.AddBillParam
 			}
 
 			bill_users_amount = append(bill_users_amount, store.AddUserBillParams{
-				// BillID:       1,
 				BillID:       billId,
 				GroupID:      newBill.GroupID,
 				LendUserID:   lender.LenderId,
 				BorrowUserID: borrower.UserId,
-				Amount:       borrower.Amount * int32(lender.LendProportion),
+				Amount:       int32(float32(borrower.Amount) * lender.LendProportion),
 			})
 		}
 	}

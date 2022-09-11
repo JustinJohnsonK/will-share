@@ -1,4 +1,4 @@
-package domain
+package routes
 
 import (
 	"github.com/JustinJohnsonK/will-share/controllers/bill"
@@ -17,7 +17,7 @@ func Setup(service services.APIService, e *echo.Echo) {
 	// Users
 	e.POST("/user", user.Create(service))
 	e.GET("/user/:id", user.Get(service))
-	// e.GET("/user/:id/status", user.GetStatus(service))
+	e.GET("/user/:id/status", user.GetStatus(service))
 	e.DELETE("/user/:id", user.Delete(service))
 
 	// Groups

@@ -50,6 +50,72 @@ func (q *Queries) AddUserBill(ctx context.Context, arg AddUserBillParams) (AddUs
 	return i, err
 }
 
+const getBorrowingsByUserId = `-- name: GetBorrowingsByUserId :many
+SELECT lend_user_id, sum(amount) as amount
+FROM user_bills
+WHERE borrow_user_id = $1
+AND is_active = True
+GROUP BY lend_user_id
+`
+
+type GetBorrowingsByUserIdRow struct {
+	LendUserID int64 `json:"lend_user_id"`
+	Amount     int64 `json:"amount"`
+}
+
+func (q *Queries) GetBorrowingsByUserId(ctx context.Context, borrowUserID int64) ([]GetBorrowingsByUserIdRow, error) {
+	rows, err := q.db.Query(ctx, getBorrowingsByUserId, borrowUserID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetBorrowingsByUserIdRow
+	for rows.Next() {
+		var i GetBorrowingsByUserIdRow
+		if err := rows.Scan(&i.LendUserID, &i.Amount); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getLendingsByUserId = `-- name: GetLendingsByUserId :many
+SELECT borrow_user_id, sum(amount) as amount
+FROM user_bills
+WHERE lend_user_id = $1
+AND is_active = True
+GROUP BY borrow_user_id
+`
+
+type GetLendingsByUserIdRow struct {
+	BorrowUserID int64 `json:"borrow_user_id"`
+	Amount       int64 `json:"amount"`
+}
+
+func (q *Queries) GetLendingsByUserId(ctx context.Context, lendUserID int64) ([]GetLendingsByUserIdRow, error) {
+	rows, err := q.db.Query(ctx, getLendingsByUserId, lendUserID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetLendingsByUserIdRow
+	for rows.Next() {
+		var i GetLendingsByUserIdRow
+		if err := rows.Scan(&i.BorrowUserID, &i.Amount); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const settleUserBillsByBillId = `-- name: SettleUserBillsByBillId :exec
 UPDATE user_bills
 SET is_active = False

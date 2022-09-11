@@ -29,6 +29,16 @@ func (s *BillService) Get(c context.Context, bill_id int64) (store.GetBillByBill
 	return i, err
 }
 
+func (s *BillService) GetBorrowingsByUserID(c context.Context, user_id int64) ([]store.GetBorrowingsByUserIdRow, error) {
+	i, err := s.db.GetBorrowingsByUserId(c, user_id)
+	return i, err
+}
+
+func (s *BillService) GetLendingssByUserID(c context.Context, user_id int64) ([]store.GetLendingsByUserIdRow, error) {
+	i, err := s.db.GetLendingsByUserId(c, user_id)
+	return i, err
+}
+
 func (s *BillService) DeleteBillByBillId(c context.Context, bill_id int64) error {
 	err := s.db.DeleteBillByBillId(c, bill_id)
 	return err

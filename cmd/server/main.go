@@ -4,9 +4,9 @@ import (
 	"os"
 
 	"github.com/JustinJohnsonK/will-share/app"
-	"github.com/JustinJohnsonK/will-share/domain"
 	"github.com/JustinJohnsonK/will-share/internal/services"
 	"github.com/JustinJohnsonK/will-share/pkg/log"
+	"github.com/JustinJohnsonK/will-share/routes"
 	"github.com/labstack/echo/v4"
 )
 
@@ -28,7 +28,7 @@ func main() {
 
 	willshare := services.NewAPIService(deps)
 
-	domain.Setup(*willshare, e)
+	routes.Setup(*willshare, e)
 
 	err := e.Start(app.Config.Server.Port)
 	if err != nil {

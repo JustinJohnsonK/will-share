@@ -63,8 +63,8 @@ const getGroupUsersByGroupId = `-- name: GetGroupUsersByGroupId :many
 SELECT group_users.user_id, users.user_name
 FROM group_users
 INNER JOIN users on users.user_id = group_users.user_id
-WHERE group_id = $1
-AND is_active = True
+WHERE group_users.group_id = $1
+AND users.is_active = True
 `
 
 type GetGroupUsersByGroupIdRow struct {
