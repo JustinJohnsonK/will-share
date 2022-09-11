@@ -13,7 +13,7 @@ import (
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (user_name, phone_number)
 VALUES ($1, $2)
-RETURNING user_name, phone_number, user_id, is_active, created_at, updated_at
+RETURNING user_id, user_name, phone_number
 `
 
 type CreateUserParams struct {
@@ -21,17 +21,16 @@ type CreateUserParams struct {
 	PhoneNumber sql.NullString `json:"phone_number"`
 }
 
-func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
+type CreateUserRow struct {
+	UserID      int64          `json:"user_id"`
+	UserName    string         `json:"user_name"`
+	PhoneNumber sql.NullString `json:"phone_number"`
+}
+
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (CreateUserRow, error) {
 	row := q.db.QueryRow(ctx, createUser, arg.UserName, arg.PhoneNumber)
-	var i User
-	err := row.Scan(
-		&i.UserName,
-		&i.PhoneNumber,
-		&i.UserID,
-		&i.IsActive,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
+	var i CreateUserRow
+	err := row.Scan(&i.UserID, &i.UserName, &i.PhoneNumber)
 	return i, err
 }
 
@@ -47,27 +46,28 @@ func (q *Queries) DeleteUser(ctx context.Context, userID int64) error {
 }
 
 const getUserById = `-- name: GetUserById :one
-SELECT user_name, phone_number, user_id, is_active, created_at, updated_at
+SELECT user_id, user_name, phone_number
 FROM users
 WHERE user_id = $1
+AND is_active = True
 `
 
-func (q *Queries) GetUserById(ctx context.Context, userID int64) (User, error) {
+type GetUserByIdRow struct {
+	UserID      int64          `json:"user_id"`
+	UserName    string         `json:"user_name"`
+	PhoneNumber sql.NullString `json:"phone_number"`
+}
+
+func (q *Queries) GetUserById(ctx context.Context, userID int64) (GetUserByIdRow, error) {
 	row := q.db.QueryRow(ctx, getUserById, userID)
-	var i User
-	err := row.Scan(
-		&i.UserName,
-		&i.PhoneNumber,
-		&i.UserID,
-		&i.IsActive,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
+	var i GetUserByIdRow
+	err := row.Scan(&i.UserID, &i.UserName, &i.PhoneNumber)
 	return i, err
 }
 
 const hardDeleteUser = `-- name: HardDeleteUser :exec
-DELETE FROM users WHERE user_id = $1
+DELETE FROM users 
+WHERE user_id = $1
 `
 
 func (q *Queries) HardDeleteUser(ctx context.Context, userID int64) error {

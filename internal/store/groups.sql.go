@@ -13,7 +13,7 @@ import (
 const createGroup = `-- name: CreateGroup :one
 INSERT INTO groups (group_name, description)
 VALUES ($1, $2)
-RETURNING description, group_name, group_id, is_active, created_at, updated_at
+RETURNING group_id, group_name, description
 `
 
 type CreateGroupParams struct {
@@ -21,17 +21,16 @@ type CreateGroupParams struct {
 	Description sql.NullString `json:"description"`
 }
 
-func (q *Queries) CreateGroup(ctx context.Context, arg CreateGroupParams) (Group, error) {
+type CreateGroupRow struct {
+	GroupID     int64          `json:"group_id"`
+	GroupName   string         `json:"group_name"`
+	Description sql.NullString `json:"description"`
+}
+
+func (q *Queries) CreateGroup(ctx context.Context, arg CreateGroupParams) (CreateGroupRow, error) {
 	row := q.db.QueryRow(ctx, createGroup, arg.GroupName, arg.Description)
-	var i Group
-	err := row.Scan(
-		&i.Description,
-		&i.GroupName,
-		&i.GroupID,
-		&i.IsActive,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
+	var i CreateGroupRow
+	err := row.Scan(&i.GroupID, &i.GroupName, &i.Description)
 	return i, err
 }
 
@@ -47,27 +46,28 @@ func (q *Queries) DeleteGroupById(ctx context.Context, groupID int64) error {
 }
 
 const getGroupByGroupId = `-- name: GetGroupByGroupId :one
-SELECT description, group_name, group_id, is_active, created_at, updated_at
+SELECT group_id, group_name, description
 FROM groups
 WHERE group_id = $1
+AND is_active = True
 `
 
-func (q *Queries) GetGroupByGroupId(ctx context.Context, groupID int64) (Group, error) {
+type GetGroupByGroupIdRow struct {
+	GroupID     int64          `json:"group_id"`
+	GroupName   string         `json:"group_name"`
+	Description sql.NullString `json:"description"`
+}
+
+func (q *Queries) GetGroupByGroupId(ctx context.Context, groupID int64) (GetGroupByGroupIdRow, error) {
 	row := q.db.QueryRow(ctx, getGroupByGroupId, groupID)
-	var i Group
-	err := row.Scan(
-		&i.Description,
-		&i.GroupName,
-		&i.GroupID,
-		&i.IsActive,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
+	var i GetGroupByGroupIdRow
+	err := row.Scan(&i.GroupID, &i.GroupName, &i.Description)
 	return i, err
 }
 
 const hardDeleteUserById = `-- name: HardDeleteUserById :exec
-DELETE FROM groups WHERE group_id = $1
+DELETE FROM groups 
+WHERE group_id = $1
 `
 
 func (q *Queries) HardDeleteUserById(ctx context.Context, groupID int64) error {

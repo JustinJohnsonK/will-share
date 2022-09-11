@@ -12,7 +12,7 @@ import (
 const addUserToGroup = `-- name: AddUserToGroup :one
 INSERT INTO group_users (group_id, user_id)
 VALUES ($1, $2)
-RETURNING id, group_id, user_id, is_active, created_at, updated_at
+RETURNING group_id, user_id
 `
 
 type AddUserToGroupParams struct {
@@ -20,18 +20,76 @@ type AddUserToGroupParams struct {
 	UserID  int64 `json:"user_id"`
 }
 
-func (q *Queries) AddUserToGroup(ctx context.Context, arg AddUserToGroupParams) (GroupUser, error) {
+type AddUserToGroupRow struct {
+	GroupID int64 `json:"group_id"`
+	UserID  int64 `json:"user_id"`
+}
+
+func (q *Queries) AddUserToGroup(ctx context.Context, arg AddUserToGroupParams) (AddUserToGroupRow, error) {
 	row := q.db.QueryRow(ctx, addUserToGroup, arg.GroupID, arg.UserID)
-	var i GroupUser
-	err := row.Scan(
-		&i.ID,
-		&i.GroupID,
-		&i.UserID,
-		&i.IsActive,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
+	var i AddUserToGroupRow
+	err := row.Scan(&i.GroupID, &i.UserID)
 	return i, err
+}
+
+const getGroupUserIds = `-- name: GetGroupUserIds :many
+SELECT user_id
+FROM group_users
+WHERE group_id = $1
+AND is_active = True
+`
+
+func (q *Queries) GetGroupUserIds(ctx context.Context, groupID int64) ([]int64, error) {
+	rows, err := q.db.Query(ctx, getGroupUserIds, groupID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []int64
+	for rows.Next() {
+		var user_id int64
+		if err := rows.Scan(&user_id); err != nil {
+			return nil, err
+		}
+		items = append(items, user_id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getGroupUsersByGroupId = `-- name: GetGroupUsersByGroupId :many
+SELECT group_users.user_id, users.user_name
+FROM group_users
+INNER JOIN users on users.user_id = group_users.user_id
+WHERE group_id = $1
+AND is_active = True
+`
+
+type GetGroupUsersByGroupIdRow struct {
+	UserID   int64  `json:"user_id"`
+	UserName string `json:"user_name"`
+}
+
+func (q *Queries) GetGroupUsersByGroupId(ctx context.Context, groupID int64) ([]GetGroupUsersByGroupIdRow, error) {
+	rows, err := q.db.Query(ctx, getGroupUsersByGroupId, groupID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetGroupUsersByGroupIdRow
+	for rows.Next() {
+		var i GetGroupUsersByGroupIdRow
+		if err := rows.Scan(&i.UserID, &i.UserName); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const hardRemoveUserFromGroup = `-- name: HardRemoveUserFromGroup :exec

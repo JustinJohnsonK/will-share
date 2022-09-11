@@ -11,6 +11,6 @@ CREATE TABLE bills (
 	constraint fk_group_id foreign key(group_id) references groups(group_id)
 );
 CREATE UNIQUE INDEX index_bill_id ON bills(bill_id);
-CREATE UNIQUE INDEX index_bills_group_id ON bills(group_id);
+CREATE INDEX index_bills_group_id ON bills(group_id);
 -- +migrate Down
 DROP TABLE bills;

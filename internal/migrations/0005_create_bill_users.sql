@@ -15,9 +15,9 @@ create table user_bills (
 	constraint fk_borrow_user_id foreign key(borrow_user_id) references users(user_id),
 	constraint fk_bill_id foreign key(bill_id) references bills(bill_id)
 );
-CREATE UNIQUE INDEX index_user_bills_id ON user_bills(bill_id);
-CREATE UNIQUE INDEX index_user_bills_group_id ON user_bills(group_id);
-CREATE UNIQUE INDEX index_user_bills_lend_user_id ON user_bills(lend_user_id);
-CREATE UNIQUE INDEX index_user_bills_borrow_user_id ON user_bills(borrow_user_id);
+CREATE INDEX index_user_bills_id ON user_bills(bill_id);
+CREATE INDEX index_user_bills_group_id ON user_bills(group_id);
+CREATE INDEX index_user_bills_lend_user_id ON user_bills(lend_user_id);
+CREATE INDEX index_user_bills_borrow_user_id ON user_bills(borrow_user_id);
 -- +migrate Down
 DROP TABLE user_bills;

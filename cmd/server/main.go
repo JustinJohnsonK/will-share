@@ -26,18 +26,6 @@ func main() {
 	deps := app.InitServiceDependencies()
 	defer deps.Close()
 
-	// e.Use(
-	// 	middleware.Logger(app.Logger),
-
-	// 	echoMiddleware.RequestID(),
-	// 	echoMiddleware.RecoverWithConfig(echoMiddleware.RecoverConfig{
-	// 		// TODO: Use app.Logger for structured logging
-	// 		// or Create a recover middleware
-	// 		LogLevel: echoLog.ERROR,
-	// 	}),
-	// 	echoMiddleware.CORS(),
-	// )
-
 	willshare := services.NewAPIService(deps)
 
 	domain.Setup(*willshare, e)

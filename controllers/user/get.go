@@ -1,7 +1,6 @@
 package user
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -12,10 +11,8 @@ import (
 func Get(s services.APIService) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
-		userId := c.Get("user_id").(string)
 		id := c.Param("id")
 
-		fmt.Println("Get user by id", userId)
 		user_id, err := strconv.ParseInt(id, 10, 64)
 		if err != nil {
 			panic(err)

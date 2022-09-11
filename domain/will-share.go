@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"github.com/JustinJohnsonK/will-share/controllers/bill"
 	"github.com/JustinJohnsonK/will-share/controllers/group"
 	"github.com/JustinJohnsonK/will-share/controllers/user"
 	"github.com/JustinJohnsonK/will-share/internal/services"
@@ -13,18 +14,24 @@ func health(c echo.Context) error {
 }
 
 func Setup(service services.APIService, e *echo.Echo) {
-
-	// User endpoints
+	// Users
 	e.POST("/user", user.Create(service))
-	e.PUT("/user", user.Create(service))
 	e.GET("/user/:id", user.Get(service))
+	// e.GET("/user/:id/status", user.GetStatus(service))
 	e.DELETE("/user/:id", user.Delete(service))
 
-	// User endpoints
+	// Groups
 	e.POST("/group", group.Create(service))
-	e.POST("/group/user", user.Create(service))
-	e.GET("/group/:id", user.Get(service))
-	e.DELETE("/group/:id", user.Delete(service))
+	e.GET("/group/:id", group.Get(service))
+	e.DELETE("/group/:id", group.Delete(service))
+	e.POST("/group/user", group.AddUserToGroup(service))
 
+	// Bills
+	e.POST("/bill", bill.Create(service))
+	e.PUT("/bill/settle", bill.SettleBill(service))
+	e.PUT("/bill/group/settle", bill.SettleGroupBill(service))
+	e.PUT("/bill/user/settle", bill.SettleUserBill(service))
+
+	// Health Check
 	e.GET("/hea1thz", health)
 }

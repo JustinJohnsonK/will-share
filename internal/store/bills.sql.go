@@ -12,11 +12,8 @@ import (
 
 const addBill = `-- name: AddBill :one
 INSERT INTO bills (bill_title, bill_description, group_id, amount)
-VALUES (bill_title = $1, 
-    bill_description = $2,
-    group_id = $3,
-    amount = $4)
-RETURNING bill_description, bill_title, bill_id, group_id, amount, is_active, created_at, updated_at
+VALUES ($1, $2, $3, $4)
+RETURNING bill_id, bill_title, bill_description, group_id, amount
 `
 
 type AddBillParams struct {
@@ -26,23 +23,28 @@ type AddBillParams struct {
 	Amount          int32          `json:"amount"`
 }
 
-func (q *Queries) AddBill(ctx context.Context, arg AddBillParams) (Bill, error) {
+type AddBillRow struct {
+	BillID          int64          `json:"bill_id"`
+	BillTitle       sql.NullString `json:"bill_title"`
+	BillDescription sql.NullString `json:"bill_description"`
+	GroupID         int64          `json:"group_id"`
+	Amount          int32          `json:"amount"`
+}
+
+func (q *Queries) AddBill(ctx context.Context, arg AddBillParams) (AddBillRow, error) {
 	row := q.db.QueryRow(ctx, addBill,
 		arg.BillTitle,
 		arg.BillDescription,
 		arg.GroupID,
 		arg.Amount,
 	)
-	var i Bill
+	var i AddBillRow
 	err := row.Scan(
-		&i.BillDescription,
-		&i.BillTitle,
 		&i.BillID,
+		&i.BillTitle,
+		&i.BillDescription,
 		&i.GroupID,
 		&i.Amount,
-		&i.IsActive,
-		&i.CreatedAt,
-		&i.UpdatedAt,
 	)
 	return i, err
 }
@@ -70,23 +72,54 @@ func (q *Queries) DeleteBillsByGroupId(ctx context.Context, groupID int64) error
 }
 
 const getBillByBillId = `-- name: GetBillByBillId :one
-SELECT bill_description, bill_title, bill_id, group_id, amount, is_active, created_at, updated_at
+SELECT bill_title, bill_description, group_id, amount
 FROM bills
 WHERE bill_id = $1
 `
 
-func (q *Queries) GetBillByBillId(ctx context.Context, billID int64) (Bill, error) {
+type GetBillByBillIdRow struct {
+	BillTitle       sql.NullString `json:"bill_title"`
+	BillDescription sql.NullString `json:"bill_description"`
+	GroupID         int64          `json:"group_id"`
+	Amount          int32          `json:"amount"`
+}
+
+func (q *Queries) GetBillByBillId(ctx context.Context, billID int64) (GetBillByBillIdRow, error) {
 	row := q.db.QueryRow(ctx, getBillByBillId, billID)
-	var i Bill
+	var i GetBillByBillIdRow
 	err := row.Scan(
-		&i.BillDescription,
 		&i.BillTitle,
-		&i.BillID,
+		&i.BillDescription,
 		&i.GroupID,
 		&i.Amount,
-		&i.IsActive,
-		&i.CreatedAt,
-		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const settleBillByBillId = `-- name: SettleBillByBillId :one
+UPDATE bills
+SET is_active = False
+WHERE bill_id = $1
+RETURNING sum(amount)
+`
+
+func (q *Queries) SettleBillByBillId(ctx context.Context, billID int64) (int64, error) {
+	row := q.db.QueryRow(ctx, settleBillByBillId, billID)
+	var sum int64
+	err := row.Scan(&sum)
+	return sum, err
+}
+
+const settleBillByGroupId = `-- name: SettleBillByGroupId :one
+UPDATE bills
+SET is_active = False
+WHERE group_id = $1
+RETURNING sum(amount)
+`
+
+func (q *Queries) SettleBillByGroupId(ctx context.Context, groupID int64) (int64, error) {
+	row := q.db.QueryRow(ctx, settleBillByGroupId, groupID)
+	var sum int64
+	err := row.Scan(&sum)
+	return sum, err
 }

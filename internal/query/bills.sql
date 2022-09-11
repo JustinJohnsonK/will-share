@@ -1,13 +1,10 @@
 -- name: AddBill :one
 INSERT INTO bills (bill_title, bill_description, group_id, amount)
-VALUES (bill_title = $1, 
-    bill_description = $2,
-    group_id = $3,
-    amount = $4)
-RETURNING *;
+VALUES ($1, $2, $3, $4)
+RETURNING bill_id, bill_title, bill_description, group_id, amount;
 
 -- name: GetBillByBillId :one
-SELECT *
+SELECT bill_title, bill_description, group_id, amount
 FROM bills
 WHERE bill_id = $1;
 
@@ -15,6 +12,18 @@ WHERE bill_id = $1;
 UPDATE bills
 SET is_active = False
 WHERE bill_id = $1;
+
+-- name: SettleBillByBillId :one
+UPDATE bills
+SET is_active = False
+WHERE bill_id = $1
+RETURNING sum(amount);
+
+-- name: SettleBillByGroupId :one
+UPDATE bills
+SET is_active = False
+WHERE group_id = $1
+RETURNING sum(amount);
 
 -- name: DeleteBillsByGroupId :exec
 UPDATE bills

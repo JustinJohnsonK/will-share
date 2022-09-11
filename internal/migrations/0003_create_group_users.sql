@@ -10,7 +10,8 @@ create table group_users (
 	constraint fk_group_id foreign key(group_id) references groups(group_id),
 	constraint fk_user_id foreign key(user_id) references users(user_id)
 );
-CREATE UNIQUE INDEX index_group_group_id ON group_users(group_id);
-CREATE UNIQUE INDEX index_group_user_id ON group_users(user_id);
+CREATE INDEX index_group_group_id ON group_users(group_id);
+CREATE INDEX index_group_user_id ON group_users(user_id);
+CREATE UNIQUE INDEX index_group_group_user_id ON group_users(group_id, user_id);
 -- +migrate Down
 DROP TABLE group_users;

@@ -18,7 +18,6 @@ func Create(s services.APIService) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		ctx := c.Request().Context()
 
-		// var user store.CreateUserParams
 		var group createGroupRequest
 		if err := c.Bind(&group); err != nil {
 			return err

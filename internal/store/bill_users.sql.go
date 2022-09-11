@@ -12,7 +12,7 @@ import (
 const addUserBill = `-- name: AddUserBill :one
 INSERT INTO user_bills (bill_id, group_id, lend_user_id, borrow_user_id, amount)
 VALUES ($1, $2, $3, $4, $5)
-RETURNING id, lend_user_id, borrow_user_id, bill_id, group_id, amount, is_active, created_at, updated_at
+RETURNING bill_id, group_id, lend_user_id, borrow_user_id, amount
 `
 
 type AddUserBillParams struct {
@@ -23,7 +23,15 @@ type AddUserBillParams struct {
 	Amount       int32 `json:"amount"`
 }
 
-func (q *Queries) AddUserBill(ctx context.Context, arg AddUserBillParams) (UserBill, error) {
+type AddUserBillRow struct {
+	BillID       int64 `json:"bill_id"`
+	GroupID      int64 `json:"group_id"`
+	LendUserID   int64 `json:"lend_user_id"`
+	BorrowUserID int64 `json:"borrow_user_id"`
+	Amount       int32 `json:"amount"`
+}
+
+func (q *Queries) AddUserBill(ctx context.Context, arg AddUserBillParams) (AddUserBillRow, error) {
 	row := q.db.QueryRow(ctx, addUserBill,
 		arg.BillID,
 		arg.GroupID,
@@ -31,17 +39,54 @@ func (q *Queries) AddUserBill(ctx context.Context, arg AddUserBillParams) (UserB
 		arg.BorrowUserID,
 		arg.Amount,
 	)
-	var i UserBill
+	var i AddUserBillRow
 	err := row.Scan(
-		&i.ID,
-		&i.LendUserID,
-		&i.BorrowUserID,
 		&i.BillID,
 		&i.GroupID,
+		&i.LendUserID,
+		&i.BorrowUserID,
 		&i.Amount,
-		&i.IsActive,
-		&i.CreatedAt,
-		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const settleUserBillsByBillId = `-- name: SettleUserBillsByBillId :exec
+UPDATE user_bills
+SET is_active = False
+WHERE bill_id = $1
+`
+
+func (q *Queries) SettleUserBillsByBillId(ctx context.Context, billID int64) error {
+	_, err := q.db.Exec(ctx, settleUserBillsByBillId, billID)
+	return err
+}
+
+const settleUserBillsByGroupId = `-- name: SettleUserBillsByGroupId :exec
+UPDATE user_bills
+SET is_active = False
+WHERE group_id = $1
+`
+
+func (q *Queries) SettleUserBillsByGroupId(ctx context.Context, groupID int64) error {
+	_, err := q.db.Exec(ctx, settleUserBillsByGroupId, groupID)
+	return err
+}
+
+const settleUserBillsByUserId = `-- name: SettleUserBillsByUserId :exec
+UPDATE user_bills
+SET is_active = False
+WHERE (lend_user_id = $1
+    AND borrow_user_id = $2)
+    OR (lend_user_id = $2
+    AND borrow_user_id = $1)
+`
+
+type SettleUserBillsByUserIdParams struct {
+	LendUserID   int64 `json:"lend_user_id"`
+	BorrowUserID int64 `json:"borrow_user_id"`
+}
+
+func (q *Queries) SettleUserBillsByUserId(ctx context.Context, arg SettleUserBillsByUserIdParams) error {
+	_, err := q.db.Exec(ctx, settleUserBillsByUserId, arg.LendUserID, arg.BorrowUserID)
+	return err
 }
