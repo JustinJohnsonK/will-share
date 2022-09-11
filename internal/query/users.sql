@@ -1,8 +1,7 @@
 -- name: GetUserById :one
 SELECT *
 FROM users
-WHERE user_id = $1
-LIMIT 1;
+WHERE user_id = $1;
 
 -- name: CreateUser :one
 INSERT INTO users (user_name, phone_number)

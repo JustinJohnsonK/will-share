@@ -13,7 +13,7 @@ import (
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (user_name, phone_number)
 VALUES ($1, $2)
-RETURNING user_id, user_name, phone_number, is_active, created_at, updated_at
+RETURNING user_name, phone_number, user_id, is_active, created_at, updated_at
 `
 
 type CreateUserParams struct {
@@ -25,9 +25,9 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	row := q.db.QueryRow(ctx, createUser, arg.UserName, arg.PhoneNumber)
 	var i User
 	err := row.Scan(
-		&i.UserID,
 		&i.UserName,
 		&i.PhoneNumber,
+		&i.UserID,
 		&i.IsActive,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -47,19 +47,18 @@ func (q *Queries) DeleteUser(ctx context.Context, userID int64) error {
 }
 
 const getUserById = `-- name: GetUserById :one
-SELECT user_id, user_name, phone_number, is_active, created_at, updated_at
+SELECT user_name, phone_number, user_id, is_active, created_at, updated_at
 FROM users
 WHERE user_id = $1
-LIMIT 1
 `
 
 func (q *Queries) GetUserById(ctx context.Context, userID int64) (User, error) {
 	row := q.db.QueryRow(ctx, getUserById, userID)
 	var i User
 	err := row.Scan(
-		&i.UserID,
 		&i.UserName,
 		&i.PhoneNumber,
+		&i.UserID,
 		&i.IsActive,
 		&i.CreatedAt,
 		&i.UpdatedAt,

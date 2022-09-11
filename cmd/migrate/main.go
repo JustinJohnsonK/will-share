@@ -12,7 +12,6 @@ import (
 )
 
 func parseFlags() (string, int) {
-
 	num := flag.Int("num", 0, "number of migrations to be rolled back")
 	migrationType := flag.String("type", "up", "migrate 'up' or 'down'")
 	flag.Parse()
@@ -27,14 +26,14 @@ func parseFlags() (string, int) {
 }
 
 func main() {
-	env := os.Getenv("WILL-SHARE-ENV")
+	env := os.Getenv("WILLSHARE-ENV")
 
 	if env == "" {
 		env = "dev"
 	}
 
 	app.LoadConfig(env)
-	app.SetupLogger("will-share", "0.1")
+	app.SetupLogger("willshare", "0.1")
 
 	migrationType, num := parseFlags()
 

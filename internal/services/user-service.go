@@ -23,3 +23,8 @@ func (s *UserService) Get(c context.Context, user_id int64) (store.User, error) 
 	i, err := s.db.GetUserById(c, user_id)
 	return i, err
 }
+
+func (s *UserService) Delete(c context.Context, user_id int64) error {
+	err := s.db.DeleteUser(c, user_id)
+	return err
+}
