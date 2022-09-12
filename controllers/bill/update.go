@@ -35,7 +35,7 @@ func SettleBill(s services.APIService) func(c echo.Context) error {
 			return err
 		}
 
-		return c.JSON(http.StatusCreated, map[string]int64{"Amount Settled": amount_settled})
+		return c.JSON(http.StatusCreated, map[string]int64{"amount-settled": amount_settled})
 	}
 }
 
@@ -48,12 +48,12 @@ func SettleGroupBill(s services.APIService) func(c echo.Context) error {
 			return err
 		}
 
-		amount_settled, err := s.BillService.SettleBillByBillId(ctx, bill.GroupId)
+		amount_settled, err := s.BillService.SettleBillByBillGroupId(ctx, bill.GroupId)
 		if err != nil {
 			return err
 		}
 
-		return c.JSON(http.StatusCreated, map[string]int64{"Amount Settled": amount_settled})
+		return c.JSON(http.StatusCreated, map[string]int64{"amount-settled": amount_settled})
 	}
 }
 

@@ -34,3 +34,15 @@ FROM user_bills
 WHERE lend_user_id = $1
 AND is_active = True
 GROUP BY borrow_user_id;
+
+-- name: GetGroupStatusByGroupId :many
+SELECT user_bills.lend_user_id, u1.user_name as lend_user_name, user_bills.borrow_user_id, u2.user_name as borrow_user_name, sum(user_bills.amount) as amount
+FROM user_bills
+INNER JOIN users as u1 on u1.user_id = lend_user_id
+INNER JOIN users as u2 on u2.user_id = borrow_user_id
+WHERE user_bills.group_id = $1
+AND user_bills.is_active = True
+GROUP BY u1.user_name,
+u2.user_name,
+user_bills.lend_user_id,
+user_bills.borrow_user_id;

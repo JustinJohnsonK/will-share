@@ -83,6 +83,53 @@ func (q *Queries) GetBorrowingsByUserId(ctx context.Context, borrowUserID int64)
 	return items, nil
 }
 
+const getGroupStatusByGroupId = `-- name: GetGroupStatusByGroupId :many
+SELECT user_bills.lend_user_id, u1.user_name as lend_user_name, user_bills.borrow_user_id, u2.user_name as borrow_user_name, sum(user_bills.amount) as amount
+FROM user_bills
+INNER JOIN users as u1 on u1.user_id = lend_user_id
+INNER JOIN users as u2 on u2.user_id = borrow_user_id
+WHERE user_bills.group_id = $1
+AND user_bills.is_active = True
+GROUP BY u1.user_name,
+u2.user_name,
+user_bills.lend_user_id,
+user_bills.borrow_user_id
+`
+
+type GetGroupStatusByGroupIdRow struct {
+	LendUserID     int64  `json:"lend_user_id"`
+	LendUserName   string `json:"lend_user_name"`
+	BorrowUserID   int64  `json:"borrow_user_id"`
+	BorrowUserName string `json:"borrow_user_name"`
+	Amount         int64  `json:"amount"`
+}
+
+func (q *Queries) GetGroupStatusByGroupId(ctx context.Context, groupID int64) ([]GetGroupStatusByGroupIdRow, error) {
+	rows, err := q.db.Query(ctx, getGroupStatusByGroupId, groupID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetGroupStatusByGroupIdRow
+	for rows.Next() {
+		var i GetGroupStatusByGroupIdRow
+		if err := rows.Scan(
+			&i.LendUserID,
+			&i.LendUserName,
+			&i.BorrowUserID,
+			&i.BorrowUserName,
+			&i.Amount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getLendingsByUserId = `-- name: GetLendingsByUserId :many
 SELECT borrow_user_id, sum(amount) as amount
 FROM user_bills

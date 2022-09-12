@@ -25,6 +25,7 @@ func Setup(service services.APIService, e *echo.Echo) {
 	e.GET("/group/:id", group.Get(service))
 	e.DELETE("/group/:id", group.Delete(service))
 	e.POST("/group/user", group.AddUserToGroup(service))
+	e.GET("/group/:id/status", group.GetStatus(service))
 
 	// Bills
 	e.POST("/bill", bill.Create(service))

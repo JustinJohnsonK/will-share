@@ -34,7 +34,12 @@ func (s *BillService) GetBorrowingsByUserID(c context.Context, user_id int64) ([
 	return i, err
 }
 
-func (s *BillService) GetLendingssByUserID(c context.Context, user_id int64) ([]store.GetLendingsByUserIdRow, error) {
+func (s *BillService) GetGroupStatusByGroupID(c context.Context, group_id int64) ([]store.GetGroupStatusByGroupIdRow, error) {
+	i, err := s.db.GetGroupStatusByGroupId(c, group_id)
+	return i, err
+}
+
+func (s *BillService) GetLendingsByUserID(c context.Context, user_id int64) ([]store.GetLendingsByUserIdRow, error) {
 	i, err := s.db.GetLendingsByUserId(c, user_id)
 	return i, err
 }

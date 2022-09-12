@@ -55,7 +55,7 @@ func GetStatus(s services.APIService) func(c echo.Context) error {
 		userBorrowings, err := s.BillService.GetBorrowingsByUserID(ctx, user_id)
 
 		// Lending by this user
-		userLendings, err := s.BillService.GetLendingssByUserID(ctx, user_id)
+		userLendings, err := s.BillService.GetLendingsByUserID(ctx, user_id)
 
 		// Settle the balances between borrowings and lendings
 		cleanTransactions(userBorrowings, userLendings)
