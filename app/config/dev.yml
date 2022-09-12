@@ -1,0 +1,12 @@
+env: dev
+server:
+  port: :3000
+db:
+  host: localhost
+  port: 5432
+  name: willshare-db
+  user: postgres
+  password: password
+  sslmode: disable
+logger:
+will-share:
