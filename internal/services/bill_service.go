@@ -54,7 +54,7 @@ func (s *BillService) DeleteBillByGroupId(c context.Context, group_id int64) err
 	return err
 }
 
-func (s *BillService) SettleBillByBillId(c context.Context, bill_id int64) (int64, error) {
+func (s *BillService) SettleBillByBillId(c context.Context, bill_id int64) (int32, error) {
 	amount_settled, err := s.db.SettleBillByBillId(c, bill_id)
 	if err != nil {
 		return 0, err
@@ -63,13 +63,13 @@ func (s *BillService) SettleBillByBillId(c context.Context, bill_id int64) (int6
 	return amount_settled, err
 }
 
-func (s *BillService) SettleBillByBillGroupId(c context.Context, group_id int64) (int64, error) {
-	amount_settled, err := s.db.SettleBillByBillId(c, group_id)
+func (s *BillService) SettleBillByBillGroupId(c context.Context, group_id int64) error {
+	err := s.db.SettleBillByGroupId(c, group_id)
 	if err != nil {
-		return 0, err
+		return err
 	}
 	err = s.db.SettleUserBillsByGroupId(c, group_id)
-	return amount_settled, err
+	return err
 }
 
 func (s *BillService) SettleBillByBillUserId(c context.Context, userIds store.SettleUserBillsByUserIdParams) error {

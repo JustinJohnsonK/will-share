@@ -8,16 +8,11 @@ import (
 )
 
 type settleBillRequest struct {
-	BillId int64
+	BillId int64 `json:"bill_id"`
 }
 
 type settleGroupBillRequest struct {
-	GroupId int64
-}
-
-type settleUserBillRequest struct {
-	LendUserID   int64
-	BorrowUserID int64
+	GroupId int64 `json:"group_id"`
 }
 
 func SettleBill(s services.APIService) func(c echo.Context) error {
@@ -34,7 +29,7 @@ func SettleBill(s services.APIService) func(c echo.Context) error {
 			return response.BadRequest(c)
 		}
 
-		return response.Ok(c, map[string]int64{"amount-settled": amount_settled})
+		return response.Ok(c, map[string]int64{"amount-settled": int64(amount_settled)})
 	}
 }
 
@@ -47,12 +42,12 @@ func SettleGroupBill(s services.APIService) func(c echo.Context) error {
 			return response.InternalError(c, nil)
 		}
 
-		amount_settled, err := s.BillService.SettleBillByBillGroupId(ctx, bill.GroupId)
+		err := s.BillService.SettleBillByBillGroupId(ctx, bill.GroupId)
 		if err != nil {
 			return response.BadRequest(c)
 		}
 
-		return response.Ok(c, map[string]int64{"amount-settled": amount_settled})
+		return response.Ok(c, nil)
 	}
 }
 

@@ -17,13 +17,12 @@ WHERE bill_id = $1;
 UPDATE bills
 SET is_active = False
 WHERE bill_id = $1
-RETURNING sum(amount);
+RETURNING amount;
 
--- name: SettleBillByGroupId :one
+-- name: SettleBillByGroupId :exec
 UPDATE bills
 SET is_active = False
-WHERE group_id = $1
-RETURNING sum(amount);
+WHERE group_id = $1;
 
 -- name: DeleteBillsByGroupId :exec
 UPDATE bills

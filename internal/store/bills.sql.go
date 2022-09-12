@@ -100,26 +100,23 @@ const settleBillByBillId = `-- name: SettleBillByBillId :one
 UPDATE bills
 SET is_active = False
 WHERE bill_id = $1
-RETURNING sum(amount)
+RETURNING amount
 `
 
-func (q *Queries) SettleBillByBillId(ctx context.Context, billID int64) (int64, error) {
+func (q *Queries) SettleBillByBillId(ctx context.Context, billID int64) (int32, error) {
 	row := q.db.QueryRow(ctx, settleBillByBillId, billID)
-	var sum int64
-	err := row.Scan(&sum)
-	return sum, err
+	var amount int32
+	err := row.Scan(&amount)
+	return amount, err
 }
 
-const settleBillByGroupId = `-- name: SettleBillByGroupId :one
+const settleBillByGroupId = `-- name: SettleBillByGroupId :exec
 UPDATE bills
 SET is_active = False
 WHERE group_id = $1
-RETURNING sum(amount)
 `
 
-func (q *Queries) SettleBillByGroupId(ctx context.Context, groupID int64) (int64, error) {
-	row := q.db.QueryRow(ctx, settleBillByGroupId, groupID)
-	var sum int64
-	err := row.Scan(&sum)
-	return sum, err
+func (q *Queries) SettleBillByGroupId(ctx context.Context, groupID int64) error {
+	_, err := q.db.Exec(ctx, settleBillByGroupId, groupID)
+	return err
 }

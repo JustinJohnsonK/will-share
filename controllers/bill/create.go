@@ -2,7 +2,6 @@ package bill
 
 import (
 	"context"
-	"fmt"
 	"math"
 
 	"github.com/JustinJohnsonK/will-share/internal/services"
@@ -54,28 +53,24 @@ func Create(s services.APIService) func(c echo.Context) error {
 			Amount:          bill.Amount,
 		}
 
-		fmt.Printf("Bill input data = %+v\n", newBill)
-
 		// Create Bill entry in bills table
-		// createdBill, err := s.BillService.Create(ctx, newBill)
-		// if err != nil {
-		// 	return response.BadRequest(c)
-		// }
+		createdBill, err := s.BillService.Create(ctx, newBill)
+		if err != nil {
+			return response.BadRequest(c)
+		}
 
 		// Process the bill data for user_bills table
-		// bill_users_amount := generateBillForUserBills(bill, newBill, createdBill.BillID)
-		bill_users_amount := generateBillForUserBills(bill, newBill, 4)
-		fmt.Printf("User Bills generated = %+v\n", bill_users_amount)
+		bill_users_amount := generateBillForUserBills(bill, newBill, createdBill.BillID)
 
 		// Add the generated bills to bill_users table
-		// for _, bill := range bill_users_amount {
-		// 	_, err := s.BillService.CreateUserBill(ctx, bill)
-		// 	if err != nil {
-		// 		return response.InternalError(c, nil)
-		// 	}
-		// }
+		for _, bill := range bill_users_amount {
+			_, err := s.BillService.CreateUserBill(ctx, bill)
+			if err != nil {
+				return response.InternalError(c, nil)
+			}
+		}
 
-		return response.Created(c, "createdBill")
+		return response.Created(c, createdBill)
 	}
 }
 
@@ -117,8 +112,6 @@ func validateBillData(s services.APIService, ctx context.Context, amount int32, 
 }
 
 func generateBillForUserBills(bill createBillRequest, newBill store.AddBillParams, billId int64) []store.AddUserBillParams {
-	// lender_amounts := []lenderValues{}
-
 	lender_map := map[int64]int32{}
 	borrower_map := map[int64]int32{}
 	lender_proportions := map[int64]float32{}
@@ -130,9 +123,6 @@ func generateBillForUserBills(bill createBillRequest, newBill store.AddBillParam
 	for _, borrower := range bill.Borrowers {
 		borrower_map[borrower.UserId] = borrower_map[borrower.UserId] + borrower.Amount
 	}
-
-	fmt.Println("1, Lender Map = ", lender_map)
-	fmt.Println("1, Borrower Map = ", borrower_map)
 
 	for borrwer, borrow_amount := range borrower_map {
 		if lender_map[borrwer] > 0 {
@@ -157,54 +147,12 @@ func generateBillForUserBills(bill createBillRequest, newBill store.AddBillParam
 		total_lend_amount += lend_amount
 	}
 
-	fmt.Println("2, Lender Map = ", lender_map)
-	fmt.Println("2, Borrower Map = ", borrower_map)
-	fmt.Println("Total lendings = ", total_lend_amount)
-
-	// for i, borrower := range bill.Borrowers {
-	// 	amount := borrower.Amount
-
-	// 	for _, lender := range bill.Lenders {
-	// 		if lender.UserId == borrower.UserId {
-	// 			_borrower := &bill.Borrowers[i]
-	// 			if lender.Amount == borrower.Amount {
-	// 				// bill.Borrowers = append(bill.Borrowers[:i], bill.Borrowers[i+1:]...)
-	// 				_borrower.Amount = 0
-	// 				continue
-	// 			} else if lender.Amount > borrower.Amount {
-	// 				amount = int32(math.Abs(float64(lender.Amount) - float64(borrower.Amount)))
-	// 				total_lend_amount += int(amount)
-	// 				_borrower.Amount = 0
-
-	// 				lender_amounts = append(lender_amounts, lenderValues{
-	// 					LenderId:   lender.UserId,
-	// 					LendAmount: amount,
-	// 				})
-	// 			} else {
-	// 				_borrower.Amount = borrower.Amount - lender.Amount
-	// 			}
-	// 		}
-	// 	}
-	// }
-
-	// fmt.Printf("Updated Borrower bills = %+v\n", bill.Borrowers)
-
 	// Add the proportion of cash lended by the lenders
 	for lender, amount := range lender_map {
 		if amount > 0 {
 			lender_proportions[lender] = float32(amount) / float32(total_lend_amount)
 		}
-		// fmt.Println("Lend proportion = ", lender, amount, total_lend_amount, float32(amount)/float32(total_lend_amount))
 	}
-
-	// for i, lender := range lender_amounts {
-	// 	fmt.Println(lender)
-	// 	_lender := &lender_amounts[i]
-	// 	_lender.LendProportion = float32(lender.LendAmount) / float32(total_lend_amount)
-	// 	fmt.Println("Lend proportion = ", lender.LendAmount, total_lend_amount, float32(lender.LendAmount)/float32(total_lend_amount), lender)
-	// }
-
-	fmt.Printf("Processed Lendings = %+v\n", lender_proportions)
 
 	// Calulate amount each borrower should pay to the lender based on the proportion of lending
 	bill_users_amount := []store.AddUserBillParams{}
@@ -229,5 +177,3 @@ func generateBillForUserBills(bill createBillRequest, newBill store.AddBillParam
 
 	return bill_users_amount
 }
-
-// old bill create function
