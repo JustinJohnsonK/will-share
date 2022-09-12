@@ -18,7 +18,7 @@ func AddUserToGroup(s services.APIService) func(c echo.Context) error {
 
 		var userGroup addUserToGroupParams
 		if err := c.Bind(&userGroup); err != nil {
-			return err
+			return response.BadRequest(c)
 		}
 
 		for _, id := range userGroup.UserID {
@@ -29,7 +29,7 @@ func AddUserToGroup(s services.APIService) func(c echo.Context) error {
 
 			_, err := s.GroupService.AddUserToGroup(ctx, user)
 			if err != nil {
-				return err
+				return response.BadRequest(c)
 			}
 		}
 

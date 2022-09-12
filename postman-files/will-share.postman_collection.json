@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "bcface5b-6e75-47c2-9ceb-90a87694d170",
-		"name": "will-share",
+		"name": "Will-Share",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -23,12 +23,14 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:3000/user",
+							"raw": "localhost:3000/api/v1/user",
 							"host": [
 								"localhost"
 							],
 							"port": "3000",
 							"path": [
+								"api",
+								"v1",
 								"user"
 							]
 						}
@@ -41,19 +43,21 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "localhost:3000/user/:id",
+							"raw": "localhost:3000/api/v1/user/:id",
 							"host": [
 								"localhost"
 							],
 							"port": "3000",
 							"path": [
+								"api",
+								"v1",
 								"user",
 								":id"
 							],
 							"variable": [
 								{
 									"key": "id",
-									"value": "2"
+									"value": "11"
 								}
 							]
 						}
@@ -66,12 +70,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:3000/user/:id",
+							"raw": "localhost:3000/api/v1/user/:id",
 							"host": [
 								"localhost"
 							],
 							"port": "3000",
 							"path": [
+								"api",
+								"v1",
 								"user",
 								":id"
 							],
@@ -91,12 +97,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:3000/user/:id/status",
+							"raw": "localhost:3000/api/v1/user/:id/status",
 							"host": [
 								"localhost"
 							],
 							"port": "3000",
 							"path": [
+								"api",
+								"v1",
 								"user",
 								":id",
 								"status"
@@ -131,12 +139,14 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:3000/group",
+							"raw": "localhost:3000/api/v1/group",
 							"host": [
 								"localhost"
 							],
 							"port": "3000",
 							"path": [
+								"api",
+								"v1",
 								"group"
 							]
 						}
@@ -149,12 +159,14 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "localhost:3000/group/:id",
+							"raw": "localhost:3000/api/v1/group/:id",
 							"host": [
 								"localhost"
 							],
 							"port": "3000",
 							"path": [
+								"api",
+								"v1",
 								"group",
 								":id"
 							],
@@ -174,19 +186,21 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:3000/group/:id",
+							"raw": "localhost:3000/api/v1/group/:id",
 							"host": [
 								"localhost"
 							],
 							"port": "3000",
 							"path": [
+								"api",
+								"v1",
 								"group",
 								":id"
 							],
 							"variable": [
 								{
 									"key": "id",
-									"value": "5"
+									"value": ""
 								}
 							]
 						}
@@ -208,12 +222,14 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:3000/group/user",
+							"raw": "localhost:3000/api/v1/group/user",
 							"host": [
 								"localhost"
 							],
 							"port": "3000",
 							"path": [
+								"api",
+								"v1",
 								"group",
 								"user"
 							]
@@ -222,25 +238,27 @@
 					"response": []
 				},
 				{
-					"name": "Get Group Balance",
+					"name": "Get Group Status",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:3000/group/:id/balance",
+							"raw": "localhost:3000/api/v1/group/:id/status",
 							"host": [
 								"localhost"
 							],
 							"port": "3000",
 							"path": [
+								"api",
+								"v1",
 								"group",
 								":id",
-								"balance"
+								"status"
 							],
 							"variable": [
 								{
 									"key": "id",
-									"value": ""
+									"value": "3"
 								}
 							]
 						}
@@ -274,6 +292,98 @@
 							"port": "3000",
 							"path": [
 								"bill"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User bill settlement",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"lend_user_id\": 1,\n    \"borrow_user_id\": 2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/api/v1/bill/user/settle",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"v1",
+								"bill",
+								"user",
+								"settle"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Group bill settlement",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"group_id\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/api/v1/bill/group/settle",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"v1",
+								"bill",
+								"group",
+								"settle"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Bill settlement",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"bill_id\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:3000/api/v1/bill/settle",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"v1",
+								"bill",
+								"settle"
 							]
 						}
 					},

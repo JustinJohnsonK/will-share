@@ -22,7 +22,7 @@ func Delete(s services.APIService) func(c echo.Context) error {
 
 		err = s.UserService.Delete(ctx, user_id)
 		if err != nil {
-			return response.Unprocessable(c, err)
+			return response.BadRequest(c)
 		}
 
 		return response.Ok(c, nil)

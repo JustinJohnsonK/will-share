@@ -1,8 +1,6 @@
 package user
 
 import (
-	"fmt"
-	"net/http"
 	"strconv"
 
 	"github.com/JustinJohnsonK/will-share/internal/services"
@@ -28,16 +26,15 @@ func Get(s services.APIService) func(c echo.Context) error {
 
 		user_id, err := strconv.ParseInt(id, 10, 64)
 		if err != nil {
-			panic(err)
+			return response.Unprocessable(c, nil)
 		}
 
-		i, err := s.UserService.Get(ctx, user_id)
+		user, err := s.UserService.Get(ctx, user_id)
 		if err != nil {
-			fmt.Println(err)
-			return err
+			return response.BadRequest(c)
 		}
 
-		return c.JSON(http.StatusOK, i)
+		return response.Ok(c, user)
 	}
 }
 
@@ -49,7 +46,13 @@ func GetStatus(s services.APIService) func(c echo.Context) error {
 
 		user_id, err := strconv.ParseInt(id, 10, 64)
 		if err != nil {
-			response.Unprocessable(c, err)
+			return response.Unprocessable(c, err)
+		}
+
+		// Validate User
+		_, err = s.UserService.Get(ctx, user_id)
+		if err != nil {
+			return response.BadRequest(c)
 		}
 
 		// Borrowings by this user

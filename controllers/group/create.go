@@ -1,8 +1,6 @@
 package group
 
 import (
-	"net/http"
-
 	"github.com/JustinJohnsonK/will-share/internal/services"
 	"github.com/JustinJohnsonK/will-share/internal/store"
 	"github.com/JustinJohnsonK/will-share/internal/utils"
@@ -29,11 +27,11 @@ func Create(s services.APIService) func(c echo.Context) error {
 			Description: utils.ToNullString(group.Description),
 		}
 
-		i, err := s.GroupService.Create(ctx, newUser)
+		newGroup, err := s.GroupService.Create(ctx, newUser)
 		if err != nil {
-			return response.Unprocessable(c, nil)
+			return response.BadRequest(c)
 		}
 
-		return c.JSON(http.StatusCreated, i)
+		return response.Ok(c, newGroup)
 	}
 }

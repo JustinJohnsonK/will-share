@@ -65,6 +65,5 @@ func GetStatus(s services.APIService) func(c echo.Context) error {
 		group_status, err := s.BillService.GetGroupStatusByGroupID(ctx, group_id)
 
 		return response.Ok(c, group_status)
-		// c.JSON(http.StatusNotFound, utils.Errors.MissingGroup)
 	}
 }
