@@ -17,8 +17,13 @@ will-share the expenses among us! Basically cloning splitwise :)
 ### Run migrations
 
     go run cmd/migrate/main.go
+    
+### Run app
 
-##### Usage
+    go run cmd/server/main.go
+
+
+##### Migrations Usage
 
     -num int
         number of migrations to be run (default 0)
