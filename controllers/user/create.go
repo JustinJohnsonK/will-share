@@ -1,11 +1,10 @@
 package user
 
 import (
-	"net/http"
-
 	"github.com/JustinJohnsonK/will-share/internal/services"
 	"github.com/JustinJohnsonK/will-share/internal/store"
 	"github.com/JustinJohnsonK/will-share/internal/utils"
+	"github.com/JustinJohnsonK/will-share/pkg/response"
 	"github.com/labstack/echo/v4"
 )
 
@@ -20,7 +19,7 @@ func Create(s services.APIService) func(c echo.Context) error {
 
 		var user createUserRequest
 		if err := c.Bind(&user); err != nil {
-			return err
+			return response.BadRequest(c)
 		}
 
 		newUser := store.CreateUserParams{
@@ -30,9 +29,9 @@ func Create(s services.APIService) func(c echo.Context) error {
 
 		i, err := s.UserService.Create(ctx, newUser)
 		if err != nil {
-			return err
+			return response.BadRequest(c)
 		}
 
-		return c.JSON(http.StatusCreated, i)
+		return response.Ok(c, i)
 	}
 }

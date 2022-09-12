@@ -14,6 +14,15 @@ func health(c echo.Context) error {
 }
 
 func Setup(service services.APIService, e *echo.Echo) {
+	// V1 api groups
+	v1 := e.Group("/api/v1")
+	groupV1Routes(service, v1)
+
+	// Health Check
+	e.GET("/hea1thz", health)
+}
+
+func groupV1Routes(service services.APIService, e *echo.Group) {
 	// Users
 	e.POST("/user", user.Create(service))
 	e.GET("/user/:id", user.Get(service))
@@ -32,7 +41,4 @@ func Setup(service services.APIService, e *echo.Echo) {
 	e.PUT("/bill/settle", bill.SettleBill(service))
 	e.PUT("/bill/group/settle", bill.SettleGroupBill(service))
 	e.PUT("/bill/user/settle", bill.SettleUserBill(service))
-
-	// Health Check
-	e.GET("/hea1thz", health)
 }

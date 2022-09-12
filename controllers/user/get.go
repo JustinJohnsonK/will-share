@@ -7,6 +7,7 @@ import (
 
 	"github.com/JustinJohnsonK/will-share/internal/services"
 	"github.com/JustinJohnsonK/will-share/internal/store"
+	"github.com/JustinJohnsonK/will-share/pkg/response"
 	"github.com/labstack/echo/v4"
 )
 
@@ -48,7 +49,7 @@ func GetStatus(s services.APIService) func(c echo.Context) error {
 
 		user_id, err := strconv.ParseInt(id, 10, 64)
 		if err != nil {
-			panic(err)
+			response.Unprocessable(c, err)
 		}
 
 		// Borrowings by this user
@@ -74,12 +75,12 @@ func GetStatus(s services.APIService) func(c echo.Context) error {
 		}
 
 		// Create the responce
-		response := userStatus{
+		_response := userStatus{
 			Borrowings: userBorrowings,
 			Lendings:   userLendings,
 		}
 
-		return c.JSON(http.StatusOK, response)
+		return response.Ok(c, _response)
 	}
 }
 

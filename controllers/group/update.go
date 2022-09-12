@@ -1,10 +1,9 @@
 package group
 
 import (
-	"net/http"
-
 	"github.com/JustinJohnsonK/will-share/internal/services"
 	"github.com/JustinJohnsonK/will-share/internal/store"
+	"github.com/JustinJohnsonK/will-share/pkg/response"
 	"github.com/labstack/echo/v4"
 )
 
@@ -34,6 +33,6 @@ func AddUserToGroup(s services.APIService) func(c echo.Context) error {
 			}
 		}
 
-		return c.JSON(http.StatusCreated, "")
+		return response.Ok(c, nil)
 	}
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/JustinJohnsonK/will-share/internal/services"
 	"github.com/JustinJohnsonK/will-share/internal/store"
 	"github.com/JustinJohnsonK/will-share/internal/utils"
+	"github.com/JustinJohnsonK/will-share/pkg/response"
 	"github.com/labstack/echo/v4"
 )
 
@@ -20,7 +21,7 @@ func Create(s services.APIService) func(c echo.Context) error {
 
 		var group createGroupRequest
 		if err := c.Bind(&group); err != nil {
-			return err
+			return response.BadRequest(c)
 		}
 
 		newUser := store.CreateGroupParams{
@@ -30,7 +31,7 @@ func Create(s services.APIService) func(c echo.Context) error {
 
 		i, err := s.GroupService.Create(ctx, newUser)
 		if err != nil {
-			return err
+			return response.Unprocessable(c, nil)
 		}
 
 		return c.JSON(http.StatusCreated, i)

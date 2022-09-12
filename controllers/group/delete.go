@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/JustinJohnsonK/will-share/internal/services"
+	"github.com/JustinJohnsonK/will-share/pkg/response"
 	"github.com/labstack/echo/v4"
 )
 
@@ -16,14 +17,14 @@ func Delete(s services.APIService) func(c echo.Context) error {
 
 		group_id, err := strconv.ParseInt(id, 10, 64)
 		if err != nil {
-			panic(err)
+			return response.InternalError(c, err)
 		}
 
 		err = s.GroupService.Delete(ctx, group_id)
 		if err != nil {
-			return err
+			return response.BadRequest(c)
 		}
 
-		return nil
+		return response.Ok(c, nil)
 	}
 }

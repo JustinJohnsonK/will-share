@@ -1,18 +1,17 @@
 package group
 
 import (
-	"fmt"
-	"net/http"
 	"strconv"
 
 	"github.com/JustinJohnsonK/will-share/internal/services"
 	"github.com/JustinJohnsonK/will-share/internal/store"
+	"github.com/JustinJohnsonK/will-share/pkg/response"
 	"github.com/labstack/echo/v4"
 )
 
 type groupInfo struct {
-	Group      store.GetGroupByGroupIdRow
-	GroupUsers []store.GetGroupUsersByGroupIdRow
+	Group      store.GetGroupByGroupIdRow        `json:"group"`
+	GroupUsers []store.GetGroupUsersByGroupIdRow `json:"group-users"`
 }
 
 func Get(s services.APIService) func(c echo.Context) error {
@@ -29,14 +28,12 @@ func Get(s services.APIService) func(c echo.Context) error {
 
 		group_details, err := s.GroupService.Get(ctx, group_id)
 		if err != nil {
-			fmt.Println("Group Details ", group_details, err)
-			return err
+			return response.NotFound(c)
 		}
 
 		group_users, err := s.GroupService.GetGroupUsers(ctx, group_id)
 		if err != nil {
-			fmt.Println("Group Users ", group_users, err)
-			return err
+			return response.NotFound(c)
 		}
 
 		group_info := groupInfo{
@@ -44,7 +41,7 @@ func Get(s services.APIService) func(c echo.Context) error {
 			GroupUsers: group_users,
 		}
 
-		return c.JSON(http.StatusOK, group_info)
+		return response.Ok(c, group_info)
 	}
 }
 
@@ -54,27 +51,20 @@ func GetStatus(s services.APIService) func(c echo.Context) error {
 
 		id := c.Param("id")
 
-		fmt.Println("Group ID = ", id)
-
 		group_id, err := strconv.ParseInt(id, 10, 64)
 		if err != nil {
 			panic(err)
 		}
 
-		group_details, err := s.GroupService.Get(ctx, group_id)
+		// Validate group details
+		_, err = s.GroupService.Get(ctx, group_id)
 		if err != nil {
-			fmt.Println("Error Group Details ", group_details, err)
-			// c.JSON(http.StatusNotFound, utils.Errors.MissingGroup)
-			c.JSON(http.StatusNotFound, map[string]string{"error": "group not found"})
+			return response.NotFound(c)
 		}
 
-		fmt.Println("Group Details ", group_details, err)
-
-		// Borrowings by this user
 		group_status, err := s.BillService.GetGroupStatusByGroupID(ctx, group_id)
 
-		fmt.Printf("%v\n", group_status)
-
-		return c.JSON(http.StatusOK, group_status)
+		return response.Ok(c, group_status)
+		// c.JSON(http.StatusNotFound, utils.Errors.MissingGroup)
 	}
 }
