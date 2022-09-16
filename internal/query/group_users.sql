@@ -3,6 +3,11 @@ INSERT INTO group_users (group_id, user_id)
 VALUES ($1, $2)
 RETURNING group_id, user_id;
 
+-- name: AddUsersToGroup :many
+INSERT INTO group_users (group_id, user_id)
+SELECT @group_id, unnest(@user_id::bigint[]) AS user_id
+RETURNING group_id, user_id;
+
 -- name: GetGroupUsersByGroupId :many
 SELECT group_users.user_id, users.user_name
 FROM group_users

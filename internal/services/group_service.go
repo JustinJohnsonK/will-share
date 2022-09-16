@@ -34,6 +34,11 @@ func (s *GroupService) AddUserToGroup(c context.Context, userGroup store.AddUser
 	return i, err
 }
 
+func (s *GroupService) AddUsersToGroup(c context.Context, userGroup store.AddUsersToGroupParams) ([]store.AddUsersToGroupRow, error) {
+	i, err := s.db.AddUsersToGroup(c, userGroup)
+	return i, err
+}
+
 func (s *GroupService) GetGroupUsers(c context.Context, group_id int64) ([]store.GetGroupUsersByGroupIdRow, error) {
 	i, err := s.db.GetGroupUsersByGroupId(c, group_id)
 	return i, err

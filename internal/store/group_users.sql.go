@@ -32,6 +32,42 @@ func (q *Queries) AddUserToGroup(ctx context.Context, arg AddUserToGroupParams) 
 	return i, err
 }
 
+const addUsersToGroup = `-- name: AddUsersToGroup :many
+INSERT INTO group_users (group_id, user_id)
+SELECT $1, unnest($2::bigint[]) AS user_id
+RETURNING group_id, user_id
+`
+
+type AddUsersToGroupParams struct {
+	GroupID int64   `json:"group_id"`
+	UserID  []int64 `json:"user_id"`
+}
+
+type AddUsersToGroupRow struct {
+	GroupID int64 `json:"group_id"`
+	UserID  int64 `json:"user_id"`
+}
+
+func (q *Queries) AddUsersToGroup(ctx context.Context, arg AddUsersToGroupParams) ([]AddUsersToGroupRow, error) {
+	rows, err := q.db.Query(ctx, addUsersToGroup, arg.GroupID, arg.UserID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []AddUsersToGroupRow
+	for rows.Next() {
+		var i AddUsersToGroupRow
+		if err := rows.Scan(&i.GroupID, &i.UserID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getGroupUserIds = `-- name: GetGroupUserIds :many
 SELECT user_id
 FROM group_users

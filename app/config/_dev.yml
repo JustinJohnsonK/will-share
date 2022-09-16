@@ -1,0 +1,12 @@
+env: 
+server:
+  port: 
+db:
+  host: 
+  port: 
+  name: 
+  user: 
+  password: 
+  sslmode: 
+logger:
+will-share:
