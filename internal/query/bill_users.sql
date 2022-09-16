@@ -8,10 +8,30 @@ UPDATE user_bills
 SET is_active = False
 WHERE bill_id = $1;
 
+-- name: SettleBillUserBillsByBillId :exec
+WITH updated_user_bills as (
+    UPDATE user_bills
+    SET is_active = False
+    WHERE user_bills.bill_id = $1
+) 
+UPDATE bills
+SET is_active = False 
+WHERE bills.bill_id = $1;
+
 -- name: SettleUserBillsByGroupId :exec
 UPDATE user_bills
 SET is_active = False
 WHERE group_id = $1;
+
+-- name: SettleBillUserBillsByGroupId :exec
+WITH updated_user_bills as (
+    UPDATE user_bills
+    SET is_active = False
+    WHERE user_bills.group_id = $1
+)
+UPDATE bills
+SET is_active = False 
+WHERE bills.group_id = $1;
 
 -- name: SettleUserBillsByUserId :exec
 UPDATE user_bills

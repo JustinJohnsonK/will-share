@@ -163,6 +163,38 @@ func (q *Queries) GetLendingsByUserId(ctx context.Context, lendUserID int64) ([]
 	return items, nil
 }
 
+const settleBillUserBillsByBillId = `-- name: SettleBillUserBillsByBillId :exec
+WITH updated_user_bills as (
+    UPDATE user_bills
+    SET is_active = False
+    WHERE user_bills.bill_id = $1
+) 
+UPDATE bills
+SET is_active = False 
+WHERE bills.bill_id = $1
+`
+
+func (q *Queries) SettleBillUserBillsByBillId(ctx context.Context, billID int64) error {
+	_, err := q.db.Exec(ctx, settleBillUserBillsByBillId, billID)
+	return err
+}
+
+const settleBillUserBillsByGroupId = `-- name: SettleBillUserBillsByGroupId :exec
+WITH updated_user_bills as (
+    UPDATE user_bills
+    SET is_active = False
+    WHERE user_bills.group_id = $1
+)
+UPDATE bills
+SET is_active = False 
+WHERE bills.group_id = $1
+`
+
+func (q *Queries) SettleBillUserBillsByGroupId(ctx context.Context, groupID int64) error {
+	_, err := q.db.Exec(ctx, settleBillUserBillsByGroupId, groupID)
+	return err
+}
+
 const settleUserBillsByBillId = `-- name: SettleUserBillsByBillId :exec
 UPDATE user_bills
 SET is_active = False
