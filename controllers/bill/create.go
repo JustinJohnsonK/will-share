@@ -63,11 +63,9 @@ func Create(s services.APIService) func(c echo.Context) error {
 		bill_users_amount := generateBillForUserBills(bill, newBill, createdBill.BillID)
 
 		// Add the generated bills to bill_users table
-		for _, bill := range bill_users_amount {
-			_, err := s.BillService.CreateUserBill(ctx, bill)
-			if err != nil {
-				return response.InternalError(c, nil)
-			}
+		_, err = s.BillService.CreateUserBill(ctx, bill_users_amount)
+		if err != nil {
+			return response.InternalError(c, nil)
 		}
 
 		return response.Created(c, createdBill)
@@ -111,7 +109,7 @@ func validateBillData(s services.APIService, ctx context.Context, amount int32, 
 	return true
 }
 
-func generateBillForUserBills(bill createBillRequest, newBill store.AddBillParams, billId int64) []store.AddUserBillParams {
+func generateBillForUserBills(bill createBillRequest, newBill store.AddBillParams, billId int64) store.AddUserBillsParams {
 	lender_map := map[int64]int32{}
 	borrower_map := map[int64]int32{}
 	lender_proportions := map[int64]float32{}
@@ -155,7 +153,7 @@ func generateBillForUserBills(bill createBillRequest, newBill store.AddBillParam
 	}
 
 	// Calulate amount each borrower should pay to the lender based on the proportion of lending
-	bill_users_amount := []store.AddUserBillParams{}
+	bill_users_amount := store.AddUserBillsParams{}
 	for borrower, amount := range borrower_map {
 		if amount == 0 {
 			continue
@@ -165,13 +163,11 @@ func generateBillForUserBills(bill createBillRequest, newBill store.AddBillParam
 			if lender == borrower || amount == 0 || proportion == 0 {
 				continue
 			}
-			bill_users_amount = append(bill_users_amount, store.AddUserBillParams{
-				BillID:       billId,
-				GroupID:      newBill.GroupID,
-				LendUserID:   lender,
-				BorrowUserID: borrower,
-				Amount:       int32(float32(amount) * proportion),
-			})
+			bill_users_amount.BillID = append(bill_users_amount.BillID, billId)
+			bill_users_amount.GroupID = append(bill_users_amount.GroupID, newBill.GroupID)
+			bill_users_amount.LendUserID = append(bill_users_amount.LendUserID, lender)
+			bill_users_amount.BorrowUserID = append(bill_users_amount.BorrowUserID, borrower)
+			bill_users_amount.Amount = append(bill_users_amount.Amount, int32(float32(amount)*proportion))
 		}
 	}
 

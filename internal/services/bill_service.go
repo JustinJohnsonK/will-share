@@ -19,8 +19,8 @@ func (s *BillService) Create(c context.Context, bill store.AddBillParams) (store
 	return i, err
 }
 
-func (s *BillService) CreateUserBill(c context.Context, bill store.AddUserBillParams) (store.AddUserBillRow, error) {
-	i, err := s.db.AddUserBill(c, bill)
+func (s *BillService) CreateUserBill(c context.Context, bill store.AddUserBillsParams) ([]store.AddUserBillsRow, error) {
+	i, err := s.db.AddUserBills(c, bill)
 	return i, err
 }
 

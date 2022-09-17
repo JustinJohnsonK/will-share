@@ -3,6 +3,11 @@ INSERT INTO user_bills (bill_id, group_id, lend_user_id, borrow_user_id, amount)
 VALUES ($1, $2, $3, $4, $5)
 RETURNING bill_id, group_id, lend_user_id, borrow_user_id, amount;
 
+-- name: AddUserBills :many
+INSERT INTO user_bills (bill_id, group_id, lend_user_id, borrow_user_id, amount)
+SELECT unnest(@bill_id::bigint[]) AS bill_id, unnest(@group_id::bigint[]) AS group_id, unnest(@lend_user_id::bigint[]) AS lend_user_id, unnest(@borrow_user_id::bigint[]) AS borrow_user_id, unnest(@amount::int[]) AS amount
+RETURNING bill_id, group_id, lend_user_id, borrow_user_id, amount;
+
 -- name: SettleUserBillsByBillId :exec
 UPDATE user_bills
 SET is_active = False
